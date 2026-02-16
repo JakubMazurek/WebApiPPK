@@ -8,9 +8,6 @@ namespace WebApiPPK.Models;
 /// </summary>
 public class ApplicationUser : IdentityUser
 {
-    /// <summary>Projekty, których użytkownik jest właścicielem.</summary>
     public ICollection<Project> OwnedProjects { get; set; } = new List<Project>();
-
-    /// <summary>Zadania przypisane do użytkownika (wykonawca).</summary>
     public ICollection<TaskItem> AssignedTasks { get; set; } = new List<TaskItem>();
 }

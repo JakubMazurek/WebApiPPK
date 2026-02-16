@@ -17,14 +17,9 @@ public class ProjectsController : ControllerBase
 
     public ProjectsController(AppDbContext db) => _db = db;
 
-    // Pobieramy ID zalogowanego usera z tokena JWT
+    // pobieranie ID zalogowanego usera z tokena JWT
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-    /// <summary>
-    /// Zwraca projekty, do których użytkownik ma dostęp:
-    /// - jest właścicielem (Owner)
-    /// - LUB ma w projekcie przypisane zadanie
-    /// </summary>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ProjectReadDto>>> GetAccessibleProjects()
     {
@@ -41,7 +36,7 @@ public class ProjectsController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ProjectReadDto>> GetProject(int id)
     {
-        // Sprawdzamy dostęp: owner lub assigned
+        //sprawdzanie dostępu do projektu w zapytaniu do bazy (czy jestem właścicielem lub przypisanym do zadania)
         var project = await _db.Projects
             .AsNoTracking()
             .Where(p => p.Id == id)
@@ -79,7 +74,7 @@ public class ProjectsController : ControllerBase
         return CreatedAtAction(nameof(GetProject), new { id = project.Id }, read);
     }
 
-    /// <summary>Projekt może edytować tylko właściciel.</summary>
+    ///Projekt może edytować tylko właściciel
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateProject(int id, ProjectUpdateDto dto)
     {
@@ -94,7 +89,7 @@ public class ProjectsController : ControllerBase
         return NoContent();
     }
 
-    /// <summary>Projekt może usunąć tylko właściciel.</summary>
+    ///Projekt może usunąć tylko właściciel. Usunięcie projektu powinno również usunąć powiązane z nim zadania (kaskadowo w bazie danych).
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteProject(int id)
     {
@@ -107,7 +102,7 @@ public class ProjectsController : ControllerBase
         return NoContent();
     }
 
-    // REST-owo: zadania jako zasób podrzędny projektu
+    //zestawienie zadań w projekcie: dostępne dla właściciela i przypisanych do zadań
 
     [HttpGet("{projectId:int}/tasks")]
     public async Task<ActionResult<IEnumerable<TaskReadDto>>> GetProjectTasks(int projectId)
@@ -126,7 +121,7 @@ public class ProjectsController : ControllerBase
         return Ok(tasks);
     }
 
-    /// <summary>Dodawanie zadań w projekcie: tylko właściciel.</summary>
+    ///Dodanie zadania do projektu: tylko właściciel projektu może dodać zadanie. Właściciel może przypisać zadanie do dowolnego użytkownika (w tym siebie) lub pozostawić bez przypisania.
     [HttpPost("{projectId:int}/tasks")]
     public async Task<ActionResult<TaskReadDto>> CreateTask(int projectId, TaskCreateDto dto)
     {
@@ -153,7 +148,7 @@ public class ProjectsController : ControllerBase
 
         var read = new TaskReadDto(task.Id, task.Title, task.Description, task.Status, task.ProjectId, task.AssigneeId);
 
-        // Uwaga: referencja do akcji w innym kontrolerze
+        //Odwołanie do endpointu TasksController.GetTaskById, aby klient
         return CreatedAtAction(
             actionName: nameof(TasksController.GetTaskById),
             controllerName: "Tasks",

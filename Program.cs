@@ -23,7 +23,7 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 builder.Services
     .AddIdentityCore<ApplicationUser>(opt =>
     {
-        // Minimalna konfiguracja haseł pod projekt (możesz zaostrzyć)
+        //minimalna konfiguracja haseł pod projekt (możesz zaostrzyć)
         opt.User.RequireUniqueEmail = true;
         opt.Password.RequiredLength = 6;
         opt.Password.RequireNonAlphanumeric = false;
@@ -33,7 +33,7 @@ builder.Services
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
-// Serwis do tworzenia JWT
+//serwis do tworzenia JWT
 builder.Services.AddScoped<TokenService>();
 
 // --------------------
@@ -81,7 +81,7 @@ builder.Services.AddSwaggerGen(c =>
         Description = "REST API dla zarządzania projektami i zadaniami z autoryzacją JWT"
     });
 
-    // Definicja schematu bezpieczeństwa Bearer
+    // definicja schematu bezpieczeństwa Bearer
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "Autoryzacja JWT przy użyciu schematu Bearer. Wpisz 'Bearer' [spacja] i token w polu poniżej.\n\nPrzykład: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"",
@@ -91,7 +91,7 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer"
     });
 
-    // Wymaganie globalne - wszystkie endpointy wymagają tokena JWT
+    // wszystkie endpointy wymagają tokena JWT
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -113,12 +113,20 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+//tworzenie bazy danych i migracji przy starcie aplikacji
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate(); 
+}
+
 // Middleware dla Swaggera - zawsze dostępny w dev i prod
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApiPPK API v1");
-    c.RoutePrefix = "swagger"; // Dostępny pod /swagger
+    c.RoutePrefix = "swagger"; 
 });
 
 app.UseHttpsRedirection();

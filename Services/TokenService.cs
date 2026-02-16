@@ -25,7 +25,7 @@ public class TokenService
 
         var expires = DateTime.UtcNow.AddMinutes(int.Parse(jwt["ExpiresMinutes"]!));
 
-        // Minimalny zestaw claimów do identyfikacji użytkownika w API
+        //minimalny zestaw claimów do identyfikacji użytkownika w API
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id),

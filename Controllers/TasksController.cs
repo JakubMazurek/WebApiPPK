@@ -17,9 +17,7 @@ public class TasksController : ControllerBase
 
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-    /// <summary>
-    /// Odczyt zadania: właściciel projektu lub przypisany wykonawca.
-    /// </summary>
+
     [HttpGet("{id:int}")]
     public async Task<ActionResult<TaskReadDto>> GetTaskById(int id)
     {
@@ -36,10 +34,8 @@ public class TasksController : ControllerBase
         return Ok(new TaskReadDto(task.Id, task.Title, task.Description, task.Status, task.ProjectId, task.AssigneeId));
     }
 
-    /// <summary>
-    /// Aktualizacja: właściciel projektu lub assignee.
-    /// Assignee (nie-owner) może zmienić tylko status (przykładowa polityka).
-    /// </summary>
+    /// tylko właściciel projektu może edytować wszystkie pola
+
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateTask(int id, TaskUpdateDto dto)
     {
@@ -78,7 +74,7 @@ public class TasksController : ControllerBase
         return NoContent();
     }
 
-    /// <summary>Usuwanie: tylko właściciel projektu.</summary>
+    ///tylko właściciel projektu może usuniąć zadanie.
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteTask(int id)
     {

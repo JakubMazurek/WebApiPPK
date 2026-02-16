@@ -33,7 +33,7 @@ public class AuthController : ControllerBase
         if (!result.Succeeded)
             return BadRequest(result.Errors.Select(e => e.Description));
 
-        // Po rejestracji od razu wystawiamy token (wygodne dla frontu)
+        //po rejestracji od razu wystawiamy token
         return Ok(_tokenService.CreateToken(user));
     }
 
